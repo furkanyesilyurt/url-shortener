@@ -16,7 +16,7 @@ public class RandomStringGenerator {
     @Value(value = "${code.generator.leftLimit}")
     private int leftLimit;
 
-    @Value(value = "${code.generator.codeLength}")
+    @Value(value = "${code.generator.rightLimit}")
     private int rightLimit;
 
     public String generateRandomString() {
@@ -25,8 +25,6 @@ public class RandomStringGenerator {
                 .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
                 .limit(codeLength)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString()
-                .toLowerCase()
-                .concat("*");
+                .toString();
     }
 }

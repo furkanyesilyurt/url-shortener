@@ -6,11 +6,14 @@ import com.fyesilyurt.urlshortener.dto.ShortUrlDto;
 import com.fyesilyurt.urlshortener.dto.ShortUrlRequestDto;
 import com.fyesilyurt.urlshortener.entity.ShortUrl;
 import com.fyesilyurt.urlshortener.exception.CodeAlreadyExistsException;
+import com.fyesilyurt.urlshortener.exception.NotFoundAnyUrlException;
+import com.fyesilyurt.urlshortener.exception.UrlCanNotEmptyException;
 import com.fyesilyurt.urlshortener.exception.UrlNotFoundException;
 import com.fyesilyurt.urlshortener.repository.ShortUrlRepository;
 import com.fyesilyurt.urlshortener.util.RandomStringGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -26,6 +29,10 @@ public class ShortUrlService {
 
 
     public List<ShortUrlDto> getAllUrls() {
+        List<ShortUrlDto> shortUrlDtos = shortUrlConverter.convertShortUrlListToShortUrlDtoList(shortUrlRepository.findAll());
+        if (CollectionUtils.isEmpty(shortUrlDtos)) {
+            throw new NotFoundAnyUrlException("No registered urls could not to be found.");
+        }
         return shortUrlConverter.convertShortUrlListToShortUrlDtoList(shortUrlRepository.findAll());
     }
 
@@ -36,13 +43,18 @@ public class ShortUrlService {
     }
 
     public ShortUrlDto create(ShortUrlRequestDto shortUrlRequestDto) {
-        ShortUrl shortUrl = shortUrlRequestConverter.convertToEntity(shortUrlRequestDto);
-        String requestCode = shortUrl.getCode();
-        if (!StringUtils.hasLength(requestCode)) {
-            shortUrl.setCode(generateCode());
-        } else if (shortUrlRepository.findShortUrlByCode(shortUrl.getCode()).isPresent()) {
-            throw new CodeAlreadyExistsException("Code(" + requestCode + ") already exists.");
+        if (!StringUtils.hasLength(shortUrlRequestDto.getUrl())) {
+            throw new UrlCanNotEmptyException("Url must not empty");
         }
+
+        ShortUrl shortUrl = shortUrlRequestConverter.convertToEntity(shortUrlRequestDto);
+        String resultCode = shortUrl.getCode();
+        if (!StringUtils.hasLength(resultCode)) {
+            resultCode = generateCode();
+        } else if (shortUrlRepository.findShortUrlByCode(resultCode.toUpperCase()).isPresent()) {
+            throw new CodeAlreadyExistsException("Code (" + resultCode + ") already exists.");
+        }
+        shortUrl.setCode(resultCode.toUpperCase());
         return shortUrlConverter.convertShortUrlToShortUrlDto(shortUrlRepository.save(shortUrl));
     }
 

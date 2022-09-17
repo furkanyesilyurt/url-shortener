@@ -15,6 +15,9 @@ public class ShortUrlExceptionHandler {
         if(ex instanceof UrlNotFoundException) {
             UrlNotFoundException exception = (UrlNotFoundException) ex;
             message = new StringBuilder().append(URL_SHORTENER_PREFIX).append(".").append(exception.getMessage()).toString();
+        } else if (ex instanceof NotFoundAnyUrlException) {
+            NotFoundAnyUrlException exception = (NotFoundAnyUrlException) ex;
+            message = new StringBuilder().append(URL_SHORTENER_PREFIX).append(".").append(exception.getMessage()).toString();
         } else {
             message = new StringBuilder().append(INTERNAL_SERVER_ERROR_MESSAGE_KEY).append(".").append(ex.getMessage()).toString();
         }

@@ -4,6 +4,7 @@ import com.fyesilyurt.urlshortener.dto.ShortUrlDto;
 import com.fyesilyurt.urlshortener.dto.ShortUrlRequestDto;
 import com.fyesilyurt.urlshortener.dto.ShortUrlResponseDto;
 import com.fyesilyurt.urlshortener.exception.ShortUrlExceptionHandler;
+import com.fyesilyurt.urlshortener.exception.UrlNotFoundException;
 import com.fyesilyurt.urlshortener.service.ShortUrlService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -29,9 +30,8 @@ public class UrlController {
     public ResponseEntity<ShortUrlResponseDto> getAllShortUrls(){
         ShortUrlResponseDto responseDto;
         try {
-            responseDto = ShortUrlResponseDto.builder()
-                    .shortUrlDtos(shortUrlService.getAllUrls())
-                    .build();
+            responseDto = new ShortUrlResponseDto();
+            responseDto.setShortUrlDtos(shortUrlService.getAllUrls());
         } catch (Exception exception) {
             responseDto = shortUrlExceptionHandler.handle(exception);
         }
@@ -42,9 +42,8 @@ public class UrlController {
     public ResponseEntity<ShortUrlResponseDto> getUrlByCode(@Valid @NotEmpty @RequestParam String code) {
         ShortUrlResponseDto responseDto;
         try {
-            responseDto = ShortUrlResponseDto.builder()
-                    .shortUrlDtos(Arrays.asList(shortUrlService.getUrlByCode(code)))
-                    .build();
+            responseDto = new ShortUrlResponseDto();
+            responseDto.setShortUrlDtos(Arrays.asList(shortUrlService.getUrlByCode(code)));
         } catch (Exception exception) {
             responseDto = shortUrlExceptionHandler.handle(exception);
         }
@@ -53,7 +52,12 @@ public class UrlController {
 
     @RequestMapping(value = "/redirect", method = RequestMethod.GET)
     public ResponseEntity<ShortUrlResponseDto> redirect(@Valid @NotEmpty @RequestParam String code) throws URISyntaxException {
-        ShortUrlDto shortUrl = shortUrlService.getUrlByCode(code);
+        ShortUrlDto shortUrl;
+        try {
+            shortUrl = shortUrlService.getUrlByCode(code);
+        } catch (Exception exception) {
+            throw new UrlNotFoundException(exception.getMessage());
+        }
         URI uri = new URI(shortUrl.getUrl());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(uri);
@@ -61,12 +65,11 @@ public class UrlController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public ResponseEntity<ShortUrlResponseDto> create(@Valid @RequestBody ShortUrlRequestDto shortUrlRequestDto) {
+    public ResponseEntity<ShortUrlResponseDto> create(@RequestBody ShortUrlRequestDto shortUrlRequestDto) {
         ShortUrlResponseDto responseDto;
         try {
-            responseDto = ShortUrlResponseDto.builder()
-                    .shortUrlDtos(Arrays.asList(shortUrlService.create(shortUrlRequestDto)))
-                    .build();
+            responseDto = new ShortUrlResponseDto();
+            responseDto.setShortUrlDtos(Arrays.asList(shortUrlService.create(shortUrlRequestDto)));
         } catch (Exception exception) {
             responseDto = shortUrlExceptionHandler.handle(exception);
         }
