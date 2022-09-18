@@ -1,0 +1,192 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Url Shortener API",
+    "description": "Url Shortener",
+    "contact": {
+      "name": "Furkan Yesilyurt",
+      "email": "f.yesilyurt@outlook.com"
+    },
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Url Controller",
+      "description": "Here we can list, saveand redirect url."
+    }
+  ],
+  "paths": {
+    "/api/v1/shortUrl": {
+      "get": {
+        "tags": [
+          "Url Controller"
+        ],
+        "summary": "All url are listed.",
+        "operationId": "getAllShortUrls",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortUrlResponseDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Url Controller"
+        ],
+        "summary": "Save a url",
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShortUrlRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortUrlResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shortUrl/show": {
+      "get": {
+        "tags": [
+          "Url Controller"
+        ],
+        "summary": "Find a url by code.",
+        "operationId": "getUrlByCode",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "Url code of the url to be find.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortUrlResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shortUrl/redirect": {
+      "get": {
+        "tags": [
+          "Url Controller"
+        ],
+        "summary": "Redirect url with url code.",
+        "operationId": "redirect",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "Url code of the url to be redirect.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortUrlResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ShortUrlRequestDto": {
+        "required": [
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "description": "Request model of the url to be save."
+      },
+      "ShortUrlDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "url": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "ShortUrlResponseDto": {
+        "type": "object",
+        "properties": {
+          "shortUrlDtos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShortUrlDto"
+            }
+          },
+          "message": {
+            "type": "string"
+          },
+          "responseCode": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    }
+  }
+}

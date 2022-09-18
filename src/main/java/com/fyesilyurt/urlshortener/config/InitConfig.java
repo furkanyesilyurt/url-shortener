@@ -18,6 +18,10 @@ public class InitConfig {
     @PostConstruct
     public void onInit() {
         List<ShortUrl> shortUrls = DataCreater.createUrls();
-        repository.saveAll(shortUrls);
+        for (ShortUrl shortUrl : shortUrls) {
+            if (!repository.findShortUrlByCode(shortUrl.getCode()).isPresent()) {
+                repository.save(shortUrl);
+            }
+        }
     }
 }
